@@ -3,6 +3,7 @@
 @theme {
 	/* Your theme styles go here */
 	--animate-float: float 3s ease-in-out infinite;
+	--animate-loading: loading 1.5s ease-in-out infinite;
 
 	@keyframes float {
 		0%,
@@ -13,4 +14,25 @@
 			transform: translateY(-10px);
 		}
 	}
+
+	@keyframes loading {
+		0% {
+			transform: scaleX(0);
+		}
+		50% {
+			transform: scaleX(1);
+		}
+		100% {
+			transform: scaleX(0);
+		}
+	}
+
+	--color-sw-green: rgb(10 180 99);
+	--color-sw-green-dark: rgb(8 153 84);
+	--color-sw-blue: rgb(0 148 255);
+	--color-sw-gray: rgb(196 196 196);
+	--color-sw-gray-dark: rgb(56 56 56);
+	--color-sw-border: rgb(218 218 218);
+
+	--font-family-montserrat: "Montserrat", sans-serif;
 }

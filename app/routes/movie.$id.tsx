@@ -1,7 +1,7 @@
-import { Link } from "react-router"
 import type { MetaFunction } from "react-router"
-import { extractIdFromUrl, getMovie, getPerson } from "~/services/swapi.server"
+import { Link, useNavigation } from "react-router"
 import { getServerEnv } from "~/env.server"
+import { extractIdFromUrl, getMovie, getPerson } from "~/services/swapi.server"
 import type { Route } from "./+types/movie.$id"
 
 export const meta: MetaFunction = () => {
@@ -45,7 +45,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 		return { movie }
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole: We want this to be logged
 		console.error("Failed to fetch movie:", error)
 		throw new Response("Not Found", { status: 404 })
 	}
@@ -53,13 +52,15 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export default function MovieDetails({ loaderData }: Route.ComponentProps) {
 	const { movie } = loaderData
+	const navigation = useNavigation()
+	const isNavigating = navigation.state === "loading"
 
 	return (
 		<div className="min-h-screen bg-gray-50 font-montserrat">
 			{/* Header */}
 			<header className="h-[50px] bg-white shadow-[0_2px_0_0_var(--color-sw-border)]">
 				<div className="flex h-full items-center justify-center">
-					<h1 className="text-lg font-bold text-sw-green">SWStarter</h1>
+					<h1 className="font-bold text-lg text-sw-green">SWStarter</h1>
 				</div>
 			</header>
 
@@ -69,34 +70,33 @@ export default function MovieDetails({ loaderData }: Route.ComponentProps) {
 				<div className="w-[804px] rounded border border-sw-border bg-white shadow-[0_1px_2px_0_rgba(132,132,132,0.749)]">
 					<div className="p-[30px]">
 						{/* Movie Title */}
-						<h1 className="mb-[30px] text-lg font-bold text-black">{movie.title}</h1>
+						<h1 className="mb-[30px] font-bold text-black text-lg">{movie.title}</h1>
 
 						{/* Two Column Layout */}
 						<div className="grid grid-cols-2 gap-[100px]">
 							{/* Opening Crawl Column */}
 							<div>
-								<h2 className="mb-[10px] text-base font-bold text-black">Opening Crawl</h2>
-								<div className="border-t border-sw-gray pt-[6px]">
-									<p className="whitespace-pre-line text-sm text-black">{movie.openingCrawl}</p>
+								<h2 className="mb-[10px] font-bold text-base text-black">Opening Crawl</h2>
+								<div className="border-sw-gray border-t pt-[6px]">
+									<p className="whitespace-pre-line text-black text-sm">{movie.openingCrawl}</p>
 								</div>
 							</div>
 
 							{/* Characters Column */}
 							<div>
-								<h2 className="mb-[10px] text-base font-bold text-black">Characters</h2>
-								<div className="border-t border-sw-gray pt-[6px]">
+								<h2 className="mb-[10px] font-bold text-base text-black">Characters</h2>
+								<div className="border-sw-gray border-t pt-[6px]">
 									<div className="text-sm">
 										{movie.characters.map((character, index) => (
 											<span key={`${character.id}-${index}`}>
 												<Link
 													to={`/person/${character.id}`}
-													className="text-sw-blue hover:underline focus:outline-none focus:underline"
+													className="text-sw-blue transition-opacity hover:underline focus:underline focus:outline-none"
+													style={{ opacity: isNavigating ? 0.5 : 1, pointerEvents: isNavigating ? "none" : "auto" }}
 												>
 													{character.name}
 												</Link>
-												{index < movie.characters.length - 1 && (
-													<span className="text-sw-gray-dark">, </span>
-												)}
+												{index < movie.characters.length - 1 && <span className="text-sw-gray-dark">, </span>}
 											</span>
 										))}
 									</div>
@@ -107,10 +107,11 @@ export default function MovieDetails({ loaderData }: Route.ComponentProps) {
 						{/* Back to Search Button */}
 						<div className="mt-[30px]">
 							<Link
-								to="/search"
-								className="inline-flex h-[34px] w-[187px] items-center justify-center rounded-[17px] border border-sw-green-dark bg-sw-green-dark text-sm font-bold text-white hover:bg-[rgb(7,138,76)] focus:outline-none focus:ring-2 focus:ring-sw-green-dark focus:ring-offset-2"
+								to="/"
+								className="inline-flex h-[34px] w-[187px] items-center justify-center rounded-[17px] border border-sw-green-dark bg-sw-green-dark font-bold text-sm text-white transition-opacity hover:bg-[rgb(7,138,76)] focus:outline-none focus:ring-2 focus:ring-sw-green-dark focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+								style={{ opacity: isNavigating ? 0.5 : 1, pointerEvents: isNavigating ? "none" : "auto" }}
 							>
-								BACK TO SEARCH
+								{isNavigating ? "LOADING..." : "BACK TO SEARCH"}
 							</Link>
 						</div>
 					</div>

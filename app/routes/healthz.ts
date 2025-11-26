@@ -1,9 +1,8 @@
 import { sql } from "drizzle-orm"
 import { getDb } from "~/db/client.server"
 import { getRedis } from "~/queue/redis.server"
-import type { Route } from "./+types/healthz"
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
 	const checks: Record<string, boolean> = {
 		database: false,
 		redis: false,
@@ -15,7 +14,6 @@ export async function loader({ request }: Route.LoaderArgs) {
 		await db.execute(sql`SELECT 1`)
 		checks.database = true
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole
 		console.error("Health check - Database error:", error)
 	}
 
@@ -25,7 +23,6 @@ export async function loader({ request }: Route.LoaderArgs) {
 		await redis.ping()
 		checks.redis = true
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole
 		console.error("Health check - Redis error:", error)
 	}
 
@@ -39,6 +36,6 @@ export async function loader({ request }: Route.LoaderArgs) {
 		},
 		{
 			status: healthy ? 200 : 503,
-		},
+		}
 	)
 }

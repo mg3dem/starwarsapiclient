@@ -1,101 +1,101 @@
 {
-  "id": "aa91c96c-30af-40ff-b285-814a3b8a8f0a",
-  "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "7",
-  "dialect": "postgresql",
-  "tables": {
-    "public.search_queries": {
-      "name": "search_queries",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "query": {
-          "name": "query",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "search_type": {
-          "name": "search_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "response_time_ms": {
-          "name": "response_time_ms",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "results_count": {
-          "name": "results_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.statistics_cache": {
-      "name": "statistics_cache",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "statistics_data": {
-          "name": "statistics_data",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "computed_at": {
-          "name": "computed_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    }
-  },
-  "enums": {},
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
-  "views": {},
-  "_meta": {
-    "columns": {},
-    "schemas": {},
-    "tables": {}
-  }
+	"id": "aa91c96c-30af-40ff-b285-814a3b8a8f0a",
+	"prevId": "00000000-0000-0000-0000-000000000000",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.search_queries": {
+			"name": "search_queries",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"query": {
+					"name": "query",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"search_type": {
+					"name": "search_type",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"response_time_ms": {
+					"name": "response_time_ms",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"results_count": {
+					"name": "results_count",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.statistics_cache": {
+			"name": "statistics_cache",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"statistics_data": {
+					"name": "statistics_data",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"computed_at": {
+					"name": "computed_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
 }

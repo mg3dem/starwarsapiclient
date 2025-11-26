@@ -58,12 +58,10 @@ export async function computeStatistics(): Promise<Statistics> {
 			statisticsData: JSON.stringify(statistics),
 		})
 
-		// biome-ignore lint/suspicious/noConsole: We want this to be logged
 		console.log("Statistics computed and cached successfully")
 
 		return statistics
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole: We want this to be logged
 		console.error("Failed to compute statistics:", error)
 		throw error
 	}
@@ -87,7 +85,6 @@ export async function getLatestStatistics(): Promise<Statistics | null> {
 
 		return JSON.parse(result[0].statisticsData)
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole: We want this to be logged
 		console.error("Failed to get latest statistics:", error)
 		return null
 	}

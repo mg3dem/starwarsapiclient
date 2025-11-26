@@ -1,7 +1,7 @@
-import { useState } from "react"
-import { Link } from "react-router"
-import type { MetaFunction } from "react-router"
 import { useQuery } from "@tanstack/react-query"
+import { useState } from "react"
+import type { MetaFunction } from "react-router"
+import { Link, useNavigation } from "react-router"
 
 export const meta: MetaFunction = () => {
 	return [
@@ -37,12 +37,15 @@ export default function Index() {
 	const [query, setQuery] = useState("")
 	const [searchType, setSearchType] = useState<SearchType>("people")
 	const [submittedQuery, setSubmittedQuery] = useState("")
+	const navigation = useNavigation()
 
 	const { data, isLoading, error } = useQuery({
 		queryKey: ["search", submittedQuery, searchType],
 		queryFn: () => searchAPI(submittedQuery, searchType),
 		enabled: submittedQuery.length > 0,
 	})
+
+	const isNavigating = navigation.state === "loading"
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault()
@@ -59,7 +62,7 @@ export default function Index() {
 			{/* Header */}
 			<header className="h-[50px] bg-white shadow-[0_2px_0_0_var(--color-sw-border)]">
 				<div className="flex h-full items-center justify-center">
-					<h1 className="text-lg font-bold text-sw-green">SWStarter</h1>
+					<h1 className="font-bold text-lg text-sw-green">SWStarter</h1>
 				</div>
 			</header>
 
@@ -68,7 +71,7 @@ export default function Index() {
 				{/* Search Container */}
 				<div className="h-[230px] w-[410px] rounded border border-sw-border bg-white shadow-[0_1px_2px_0_rgba(132,132,132,0.749)]">
 					<form onSubmit={handleSubmit} className="p-[30px]">
-						<h2 className="mb-6 text-sm font-semibold text-sw-gray-dark">What are you searching for?</h2>
+						<h2 className="mb-6 font-semibold text-sm text-sw-gray-dark">What are you searching for?</h2>
 
 						{/* Radio Buttons */}
 						<div className="mb-6 flex gap-6">
@@ -84,7 +87,7 @@ export default function Index() {
 								<div className="flex h-4 w-4 items-center justify-center rounded-full border border-sw-gray bg-white peer-checked:border-transparent peer-checked:bg-sw-blue">
 									<div className="h-1 w-1 rounded-full bg-transparent peer-checked:bg-white" />
 								</div>
-								<span className="text-sm font-bold text-black">People</span>
+								<span className="font-bold text-black text-sm">People</span>
 							</label>
 
 							<label className="flex cursor-pointer items-center gap-2">
@@ -99,7 +102,7 @@ export default function Index() {
 								<div className="flex h-4 w-4 items-center justify-center rounded-full border border-sw-gray bg-white peer-checked:border-transparent peer-checked:bg-sw-blue">
 									<div className="h-1 w-1 rounded-full bg-transparent peer-checked:bg-white" />
 								</div>
-								<span className="text-sm font-bold text-black">Movies</span>
+								<span className="font-bold text-black text-sm">Movies</span>
 							</label>
 						</div>
 
@@ -108,7 +111,7 @@ export default function Index() {
 							type="text"
 							value={query}
 							onChange={(e) => setQuery(e.target.value)}
-							className="mb-4 h-[40px] w-full rounded border border-sw-gray px-[10px] text-sm font-bold text-sw-gray-dark shadow-[inset_0_1px_3px_0_rgba(132,132,132,0.749)] focus:outline-none focus:ring-2 focus:ring-sw-blue"
+							className="mb-4 h-[40px] w-full rounded border border-sw-gray px-[10px] font-bold text-sm text-sw-gray-dark shadow-[inset_0_1px_3px_0_rgba(132,132,132,0.749)] focus:outline-none focus:ring-2 focus:ring-sw-blue"
 							placeholder="e.g. Chewbacca, Yoda, Boba Fett"
 							required
 						/>
@@ -116,8 +119,8 @@ export default function Index() {
 						{/* Search Button */}
 						<button
 							type="submit"
-							disabled={isLoading || !query.trim()}
-							className="h-[34px] w-full rounded-[20px] border border-sw-green bg-sw-green text-sm font-bold text-white hover:bg-sw-green-dark focus:outline-none focus:ring-2 focus:ring-sw-green focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+							disabled={isLoading || query.trim().length === 0}
+							className="h-[34px] w-full rounded-[20px] border border-sw-green bg-sw-green font-bold text-sm text-white hover:bg-sw-green-dark focus:outline-none focus:ring-2 focus:ring-sw-green focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 						>
 							{isLoading ? "SEARCHING..." : "SEARCH"}
 						</button>
@@ -127,17 +130,15 @@ export default function Index() {
 				{/* Results Container */}
 				<div className="min-h-[582px] w-[582px] rounded border border-sw-border bg-white shadow-[0_1px_2px_0_rgba(132,132,132,0.749)]">
 					<div className="p-[30px]">
-						<h2 className="mb-6 text-lg font-bold text-black">Results</h2>
+						<h2 className="mb-6 font-bold text-black text-lg">Results</h2>
 
-						{searchError && (
-							<div className="mb-4 rounded bg-red-50 p-4 text-sm text-red-600">{searchError}</div>
-						)}
+						{searchError && <div className="mb-4 rounded bg-red-50 p-4 text-red-600 text-sm">{searchError}</div>}
 
-						<div className="border-t border-sw-gray">
+						<div className="border-sw-gray border-t">
 							{isLoading ? (
 								<div className="flex min-h-[480px] items-center justify-center">
 									<div className="text-center">
-										<div className="mb-3 text-base font-semibold text-sw-gray-dark">Searching...</div>
+										<div className="mb-3 font-semibold text-base text-sw-gray-dark">Searching...</div>
 										<div className="h-1.5 w-48 overflow-hidden rounded-full bg-gray-200">
 											<div className="h-full w-full origin-left animate-[loading_1.5s_ease-in-out_infinite] bg-sw-blue" />
 										</div>
@@ -145,16 +146,14 @@ export default function Index() {
 								</div>
 							) : results.length > 0 ? (
 								results.map((result) => (
-									<div
-										key={result.id}
-										className="flex items-center justify-between border-b border-sw-gray py-[18px]"
-									>
-										<h3 className="text-base font-bold text-black">{result.name}</h3>
+									<div key={result.id} className="flex items-center justify-between border-sw-gray border-b py-[18px]">
+										<h3 className="font-bold text-base text-black">{result.name}</h3>
 										<Link
 											to={searchType === "films" ? `/movie/${result.id}` : `/person/${result.id}`}
-											className="flex h-[34px] w-[134px] items-center justify-center rounded-[17px] bg-sw-green text-sm font-bold text-white hover:bg-sw-green-dark focus:outline-none focus:ring-2 focus:ring-sw-green focus:ring-offset-2"
+											className="flex h-[34px] w-[134px] items-center justify-center rounded-[17px] bg-sw-green font-bold text-sm text-white transition-opacity hover:bg-sw-green-dark focus:outline-none focus:ring-2 focus:ring-sw-green focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+											style={{ opacity: isNavigating ? 0.5 : 1, pointerEvents: isNavigating ? "none" : "auto" }}
 										>
-											SEE DETAILS
+											{isNavigating ? "LOADING..." : "SEE DETAILS"}
 										</Link>
 									</div>
 								))

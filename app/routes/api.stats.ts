@@ -7,7 +7,6 @@ export async function loader({ request }: Route.LoaderArgs) {
 		const refresh = url.searchParams.get("refresh") === "true"
 
 		if (refresh) {
-			// biome-ignore lint/suspicious/noConsole
 			console.log("Manual statistics refresh requested")
 			const statistics = await computeStatistics()
 			return Response.json(statistics)
@@ -16,7 +15,6 @@ export async function loader({ request }: Route.LoaderArgs) {
 		const statistics = await getLatestStatistics()
 
 		if (!statistics) {
-			// biome-ignore lint/suspicious/noConsole
 			console.log("No statistics cached, computing initial statistics")
 			const newStatistics = await computeStatistics()
 			return Response.json(newStatistics)
@@ -24,13 +22,12 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 		return Response.json(statistics)
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole
 		console.error("Failed to load statistics:", error)
 		return Response.json(
 			{
 				error: "Failed to load statistics",
 			},
-			{ status: 500 },
+			{ status: 500 }
 		)
 	}
 }

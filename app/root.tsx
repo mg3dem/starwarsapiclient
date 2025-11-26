@@ -1,9 +1,18 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import type { LinksFunction } from "react-router"
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError } from "react-router"
+import {
+	isRouteErrorResponse,
+	Links,
+	Meta,
+	Outlet,
+	Scripts,
+	ScrollRestoration,
+	useNavigation,
+	useRouteError,
+} from "react-router"
 import { useChangeLanguage } from "remix-i18next/react"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import type { Route } from "./+types/root"
 import { LanguageSwitcher } from "./library/language-switcher"
 import { globalAppContext } from "./server/context"
@@ -40,6 +49,7 @@ export const handle = {
 export default function App({ loaderData }: Route.ComponentProps) {
 	const { lang, clientEnv } = loaderData
 	useChangeLanguage(lang)
+	const navigation = useNavigation()
 
 	const [queryClient] = useState(
 		() =>
@@ -50,11 +60,19 @@ export default function App({ loaderData }: Route.ComponentProps) {
 						refetchOnWindowFocus: false,
 					},
 				},
-			}),
+			})
 	)
+
+	const isNavigating = navigation.state === "loading"
 
 	return (
 		<QueryClientProvider client={queryClient}>
+			{/* Global Loading Indicator */}
+			{isNavigating && (
+				<div className="fixed top-0 right-0 left-0 z-50 h-1 bg-sw-blue opacity-75">
+					<div className="h-full w-full origin-left animate-[loading_1.5s_ease-in-out_infinite] bg-sw-green" />
+				</div>
+			)}
 			<Outlet />
 			{/* biome-ignore lint/security/noDangerouslySetInnerHtml: We set the window.env variable to the client env */}
 			<script dangerouslySetInnerHTML={{ __html: `window.env = ${JSON.stringify(clientEnv)}` }} />

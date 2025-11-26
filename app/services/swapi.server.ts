@@ -20,13 +20,26 @@ const MovieSchema = z.object({
 	characters: z.array(z.string().url()),
 })
 
+// Search result item schemas (minimal fields returned by search endpoint)
+const PersonSearchResultSchema = z.object({
+	name: z.string(),
+	url: z.string().url(),
+})
+
+const FilmSearchResultSchema = z.object({
+	title: z.string(),
+	url: z.string().url(),
+})
+
 const SearchResultSchema = z.object({
 	count: z.number(),
-	results: z.array(z.any()),
+	results: z.array(z.union([PersonSearchResultSchema, FilmSearchResultSchema])),
 })
 
 export type SWAPIPerson = z.infer<typeof PersonSchema>
 export type SWAPIMovie = z.infer<typeof MovieSchema>
+export type SWAPISearchResult = z.infer<typeof SearchResultSchema>
+export type SWAPISearchResultItem = z.infer<typeof PersonSearchResultSchema> | z.infer<typeof FilmSearchResultSchema>
 
 const CACHE_TTL = 3600
 
@@ -36,7 +49,6 @@ async function getCached<T>(key: string): Promise<T | null> {
 		const cached = await redis.get(key)
 		return cached ? JSON.parse(cached) : null
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole
 		console.error("Redis get error:", error)
 		return null
 	}
@@ -47,7 +59,6 @@ async function setCache<T>(key: string, value: T, ttl = CACHE_TTL): Promise<void
 		const redis = await getRedis()
 		await redis.setEx(key, ttl, JSON.stringify(value))
 	} catch (error) {
-		// biome-ignore lint/suspicious/noConsole
 		console.error("Redis set error:", error)
 	}
 }
@@ -57,14 +68,13 @@ export async function searchSWAPI(query: string, type: "people" | "films") {
 
 	const cached = await getCached<any>(cacheKey)
 	if (cached) {
-		// biome-ignore lint/suspicious/noConsole
 		console.log(`Cache hit for search: ${query}`)
 		return cached
 	}
 
 	const env = getServerEnv()
 	const controller = new AbortController()
-	const timeoutId = setTimeout(() => controller.abort(), Number.parseInt(env.SWAPI_TIMEOUT_MS))
+	const timeoutId = setTimeout(() => controller.abort(), Number.parseInt(env.SWAPI_TIMEOUT_MS, 10))
 
 	try {
 		const url = `${env.SWAPI_BASE_URL}/${type}/?search=${encodeURIComponent(query)}`

@@ -22,7 +22,6 @@ function initEnv() {
 	const envData = envSchema.safeParse(process.env)
 
 	if (!envData.success) {
-		// biome-ignore lint/suspicious/noConsole: We want this to be logged
 		console.error("❌ Invalid environment variables:", envData.error.flatten().fieldErrors)
 		throw new Error("Invalid environment variables")
 	}
@@ -32,7 +31,6 @@ function initEnv() {
 
 	// Do not log the message when running tests
 	if (env.NODE_ENV !== "test") {
-		// biome-ignore lint/suspicious/noConsole: We want this to be logged
 		console.log("✅ Environment variables loaded successfully")
 	}
 	return env

@@ -18,7 +18,6 @@ const removeAllReadmeFromApp = async (currentDirectory: string) => {
 	}
 }
 
-// biome-ignore lint/suspicious/noConsole: We want to log to the console here
 const log = (message: string) => console.log(chalk.green(message))
 
 const removeTheCleanupFromPackageJsonAndScripts = async () => {

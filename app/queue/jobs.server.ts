@@ -17,7 +17,6 @@ export async function initializeQueue() {
 	statisticsWorker = new Worker(
 		"statistics",
 		async (job) => {
-			// biome-ignore lint/suspicious/noConsole
 			console.log(`Processing job ${job.id}: ${job.name}`)
 
 			if (job.name === "compute-statistics") {
@@ -28,20 +27,18 @@ export async function initializeQueue() {
 			connection: {
 				url: env.REDIS_URL,
 			},
-		},
+		}
 	)
 
 	statisticsWorker.on("failed", (job, err) => {
-		// biome-ignore lint/suspicious/noConsole
 		console.error(`Job ${job?.id} failed:`, err)
 	})
 
 	statisticsWorker.on("completed", (job) => {
-		// biome-ignore lint/suspicious/noConsole
 		console.log(`Job ${job.id} completed successfully`)
 	})
 
-	const intervalMs = Number.parseInt(env.STATS_COMPUTATION_INTERVAL_MS)
+	const intervalMs = Number.parseInt(env.STATS_COMPUTATION_INTERVAL_MS, 10)
 	await statisticsQueue.add(
 		"compute-statistics",
 		{},
@@ -51,24 +48,19 @@ export async function initializeQueue() {
 			},
 			removeOnComplete: true,
 			removeOnFail: false,
-		},
+		}
 	)
 
-	// biome-ignore lint/suspicious/noConsole
-	console.log(
-		`Statistics queue initialized (interval: ${intervalMs}ms / ${intervalMs / 1000}s)`,
-	)
+	console.log(`Statistics queue initialized (interval: ${intervalMs}ms / ${intervalMs / 1000}s)`)
 }
 
 export async function closeQueue() {
 	if (statisticsWorker) {
 		await statisticsWorker.close()
-		// biome-ignore lint/suspicious/noConsole
 		console.log("Statistics worker closed")
 	}
 	if (statisticsQueue) {
 		await statisticsQueue.close()
-		// biome-ignore lint/suspicious/noConsole
 		console.log("Statistics queue closed")
 	}
 }
