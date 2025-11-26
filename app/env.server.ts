@@ -3,6 +3,11 @@ import { z } from "zod/v4"
 const envSchema = z.object({
 	NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 	APP_ENV: z.enum(["development", "staging", "production"]).default("development"),
+	DATABASE_URL: z.string().url(),
+	REDIS_URL: z.string().url(),
+	SWAPI_BASE_URL: z.string().url(),
+	SWAPI_TIMEOUT_MS: z.string().default("5000"),
+	STATS_COMPUTATION_INTERVAL_MS: z.string().default("300000"),
 })
 
 type ServerEnv = z.infer<typeof envSchema>
