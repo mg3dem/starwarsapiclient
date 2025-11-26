@@ -1,10 +1,10 @@
-import * as dotenv from "dotenv"
 import { defineConfig } from "drizzle-kit"
+import { getServerEnv } from "~/env.server"
 
 // Load environment variables
-dotenv.config()
+const env = getServerEnv()
 
-if (!process.env.DATABASE_URL) {
+if (!env.DATABASE_URL) {
 	throw new Error("DATABASE_URL environment variable is required")
 }
 
@@ -13,6 +13,6 @@ export default defineConfig({
 	out: "./drizzle",
 	dialect: "postgresql",
 	dbCredentials: {
-		url: process.env.DATABASE_URL,
+		url: env.DATABASE_URL,
 	},
 })
