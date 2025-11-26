@@ -1,7 +1,9 @@
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import type { LinksFunction } from "react-router"
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError } from "react-router"
 import { useChangeLanguage } from "remix-i18next/react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import type { Route } from "./+types/root"
 import { LanguageSwitcher } from "./library/language-switcher"
 import { globalAppContext } from "./server/context"
@@ -14,7 +16,22 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 	return { lang, clientEnv, hints }
 }
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: tailwindcss }]
+export const links: LinksFunction = () => [
+	{ rel: "stylesheet", href: tailwindcss },
+	{
+		rel: "preconnect",
+		href: "https://fonts.googleapis.com",
+	},
+	{
+		rel: "preconnect",
+		href: "https://fonts.gstatic.com",
+		crossOrigin: "anonymous",
+	},
+	{
+		rel: "stylesheet",
+		href: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap",
+	},
+]
 
 export const handle = {
 	i18n: "common",
@@ -23,12 +40,25 @@ export const handle = {
 export default function App({ loaderData }: Route.ComponentProps) {
 	const { lang, clientEnv } = loaderData
 	useChangeLanguage(lang)
+
+	const [queryClient] = useState(
+		() =>
+			new QueryClient({
+				defaultOptions: {
+					queries: {
+						staleTime: 60 * 1000, // 1 minute
+						refetchOnWindowFocus: false,
+					},
+				},
+			}),
+	)
+
 	return (
-		<>
+		<QueryClientProvider client={queryClient}>
 			<Outlet />
 			{/* biome-ignore lint/security/noDangerouslySetInnerHtml: We set the window.env variable to the client env */}
 			<script dangerouslySetInnerHTML={{ __html: `window.env = ${JSON.stringify(clientEnv)}` }} />
-		</>
+		</QueryClientProvider>
 	)
 }
 
