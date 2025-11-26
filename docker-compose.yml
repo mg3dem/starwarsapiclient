@@ -1,0 +1,76 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:17-alpine
+    container_name: swapi-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: swapi_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - swapi-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: swapi-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - swapi-network
+
+  # Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: swapi-app
+    restart: unless-stopped
+    ports:
+      - "4280:4280"
+    environment:
+      NODE_ENV: production
+      APP_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/swapi_db
+      REDIS_URL: redis://redis:6379
+      SWAPI_BASE_URL: https://swapi.dev/api
+      SWAPI_TIMEOUT_MS: 5000
+      STATS_COMPUTATION_INTERVAL_MS: 300000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - swapi-network
+    # Run migrations before starting the app
+    command: sh -c "pnpm db:migrate && node ./build/server/index.js"
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  swapi-network:
+    driver: bridge

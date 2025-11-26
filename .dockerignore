@@ -1,0 +1,58 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Build outputs
+build
+dist
+.react-router
+
+# Development files
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# CI/CD
+.github
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Testing
+coverage
+.vitest
+tests
+**/*.test.ts
+**/*.test.tsx
+**/*.browser.test.tsx
+
+# Documentation
+README.md
+CLAUDE.md
+docs
+
+# Misc
+.DS_Store
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Lefthook
+.lefthook
+.lefthook-local.yml
