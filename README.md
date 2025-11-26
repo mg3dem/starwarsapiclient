@@ -1,87 +1,184 @@
+## Star Wars API Application
 
+This application integrates with the Star Wars API (SWAPI) to provide search functionality for Star Wars characters and movies. It includes:
 
-<p align="middle">
-<img  width="900px" height="500px" src="./public/base-stack.png" />
-</p>
+- **Search**: Search for Star Wars characters and movies
+- **Details**: View detailed information about characters (with their movies) and movies (with their cast)
+- **Statistics**: Automated statistics computation showing search trends
+- **Caching**: Redis-based caching with 1-hour TTL for API responses
+- **Background Jobs**: BullMQ queue system for periodic statistics computation
 
-# Welcome to Forge 42 base-stack
+### Architecture
 
-This is a base-stack for Forge 42 projects. This stack is a starting point for all Forge 42 stacks with more
-advanced features. This is an ESM Vite stack with Remix.run / React Router v7.
+- **Frontend**: React 19 with React Router v7, TailwindCSS v4
+- **Backend**: Hono server with TypeScript
+- **Database**: PostgreSQL 17 (query logging and statistics cache)
+- **Cache**: Redis 7 (SWAPI response caching)
+- **Queue**: BullMQ (background job processing)
+- **ORM**: Drizzle ORM (type-safe database operations)
 
-It includes a basic setup for a project with react-router v7 framework mode and:
-- React 19 & react-compiler
-- TypeScript
-- TailwindCSS
-- Vite
-- Vitest (unit tests)
-- Scripting
-- Biome (linter & formatter)
-- i18n support (client and server)
-- Icons spritesheet generator
-- lefthook hooks
-- CI checks for quality control
-- react-router-devtools
-- Hono server
-- .env var handling for server and client
-- SEO robots.txt, sitemap-index and sitemap built in.
+### Environment Variables
 
-## Internationalization
+Create a `.env` file based on `.env.example`:
 
-This stack uses i18next for internationalization. It supports both client and server side translations.
-Features included out of the box:
-- Support for multiple languages
-- Typesafe resources
-- client side translations are fetched only when needed
-- language switcher
-- language detector (uses the request to detect the language, falls back to your fallback language)
-
-## Hono server
-
-This stack uses Hono for the server. More information about Hono can be found [here](https://honojs.dev/).
-Another important thing to note is that we use a dependency called `react-router-hono-server` which is a wrapper for Hono that allows us to use Hono in our React Router application.
-
-The server comes preconfigured with:
-- i18next middleware
-- caching middleware for assets
-- easily extendable global application context
-- .env injection into context
-
-In order to add your own middleware, extend the context, or anything along those lines, all you have to do is edit the server
-inside the `entry.server.tsx` file.
-
-## .env handling
-
-This stack parses your `.env` file and injects it into the server context. For the client side, in the `root.tsx` file, we use the `useLoaderData` hook to get the `clientEnv` from the server and set it as a global variable on the `window` called `env`.
-If you need to access the env variables in both environments, you can create a polyEnv helper like this:
-```ts
-// app/utils/env.ts
-// This will return the process.env on the server and window.env on the client
-export const polyEnv = typeof process !== "undefined" ? process.env : window.env;
-```
-The server will fail at runtime if you don't set your `.env` file properly.
-
-## Getting started
-
-1. Fork the repository
-
-2. Install the dependencies:
 ```bash
-pnpm install
-```
-3. Read through the README.md files in the project to understand our decisions.
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/swapi_db"
 
-4. Run the cleanup script:
+# Redis
+REDIS_URL="redis://localhost:6379"
+
+# SWAPI Configuration
+SWAPI_BASE_URL="https://swapi.dev/api"
+SWAPI_TIMEOUT_MS="5000"
+
+# Statistics
+STATS_COMPUTATION_INTERVAL_MS="300000"  # 5 minutes
+```
+
+### Database Setup
+
+#### Generate Migrations
+
+After modifying the schema in `app/db/schema.server.ts`, generate migration files:
+
 ```bash
-pnpm cleanup
+pnpm db:generate
 ```
 
-This will remove everything in the project related to the base-stack like README.md etc.
-This is the first thing you should run after initializing the project.
-After it is run it will remove itself from the package.json.
+#### Run Migrations
 
-5. Start the development server:
+Apply pending migrations to your database:
+
 ```bash
-pnpm run dev
+pnpm db:migrate
 ```
-6. Happy coding!
+
+#### Database Studio
+
+Open Drizzle Studio to browse and edit your database:
+
+```bash
+pnpm db:studio
+```
+
+### Docker Deployment
+
+The application is fully containerized with Docker Compose, including all dependencies.
+
+#### Quick Start with Docker
+
+1. **Build and start all services**:
+
+```bash
+docker-compose up --build
+```
+
+This will start:
+
+- PostgreSQL 17 on port 5432
+- Redis 7 on port 6379
+- Application on port 4280
+
+2. **Access the application**:
+
+```
+http://localhost:3000 or http://localhost:4280
+```
+
+3. **Stop all services**:
+
+```bash
+docker-compose down
+```
+
+4. **Stop and remove volumes** (clean slate):
+
+```bash
+docker-compose down -v
+```
+
+#### Docker Services
+
+- **postgres**: PostgreSQL 17 Alpine with persistent volume
+- **redis**: Redis 7 Alpine with AOF persistence
+- **app**: Node.js 24 application with automatic migrations
+
+All services include health checks and proper dependency management.
+
+### API Endpoints
+
+#### Statistics API
+
+Get computed statistics about search queries:
+
+```bash
+GET /api/stats
+```
+
+**Response**:
+
+```json
+{
+  "topQueries": [
+    { "query": "luke", "count": 42 },
+    { "query": "vader", "count": 38 },
+    { "query": "leia", "count": 25 }
+  ],
+  "averageResponseTime": 245,
+  "mostPopularHour": { "hour": 14, "count": 156 },
+  "computedAt": "2025-11-25T14:30:00.000Z"
+}
+```
+
+**Manual Refresh**:
+
+```bash
+GET /api/stats?refresh=true
+```
+
+### Development Workflow
+
+#### Local Development (without Docker)
+
+1. **Start PostgreSQL and Redis**:
+
+```bash
+# Using Docker for dependencies only
+docker-compose up postgres redis -d
+```
+
+2. **Run migrations**:
+
+```bash
+pnpm db:migrate
+```
+
+3. **Start development server**:
+
+```bash
+pnpm dev
+```
+
+#### Production Build
+
+```bash
+pnpm build
+pnpm start
+```
+
+### Statistics Computation
+
+Statistics are automatically computed every 5 minutes (configurable via `STATS_COMPUTATION_INTERVAL_MS`) and include:
+
+1. **Top 5 Search Queries**: Most frequently searched terms
+2. **Average Response Time**: Average SWAPI API response time in milliseconds
+3. **Most Popular Hour**: Hour of day with most searches (0-23)
+
+The background job uses BullMQ and runs automatically when the server starts.
+
+### Caching Strategy
+
+- **SWAPI Responses**: 1 hour TTL in Redis
+- **Statistics**: Cached in PostgreSQL, recomputed every 5 minutes
+- **Cache Keys**: Namespaced by resource type (`swapi:search:`, `swapi:person:`, `swapi:movie:`)
