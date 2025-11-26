@@ -64,7 +64,7 @@ export async function searchSWAPI(query: string, type: "people" | "films") {
 
 	const env = getServerEnv()
 	const controller = new AbortController()
-	const timeoutId = setTimeout(() => controller.abort(), env.SWAPI_TIMEOUT_MS)
+	const timeoutId = setTimeout(() => controller.abort(), Number.parseInt(env.SWAPI_TIMEOUT_MS))
 
 	try {
 		const url = `${env.SWAPI_BASE_URL}/${type}/?search=${encodeURIComponent(query)}`
@@ -80,8 +80,8 @@ export async function searchSWAPI(query: string, type: "people" | "films") {
 		await setCache(cacheKey, validated)
 
 		return validated
-	} catch (error) {
-		if (error.name === "AbortError") {
+	} catch (error: unknown) {
+		if ((error as Error).name === "AbortError") {
 			throw new Error("SWAPI request timeout")
 		}
 		throw error
