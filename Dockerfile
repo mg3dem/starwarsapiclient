@@ -42,7 +42,7 @@ COPY --from=builder /app/package.json ./package.json
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 --gid 1001 nodejs && \
+    adduser --system --home /home/nodejs --uid 1001 --gid 1001 nodejs && \
     chown -R nodejs:nodejs /app
 
 USER nodejs

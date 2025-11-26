@@ -24,7 +24,6 @@
 		"check:unused": "knip --max-issues 1",
 		"check:unused:fix": "knip --fix",
 		"typegen": "react-router typegen",
-		"postinstall": "pnpm run typegen",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "tsx app/db/migrate.server.ts",
 		"db:studio": "drizzle-kit studio"

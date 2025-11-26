@@ -1,11 +1,11 @@
+import * as dotenv from "dotenv"
 import { drizzle } from "drizzle-orm/node-postgres"
 import { migrate } from "drizzle-orm/node-postgres/migrator"
 import { Pool } from "pg"
-import { getServerEnv } from "~/env.server"
 
-const env = getServerEnv()
-
-if (!env.DATABASE_URL) {
+dotenv.config()
+// biome-ignore lint/style/noProcessEnv: Its ok to use process.env here
+if (!process.env.DATABASE_URL) {
 	throw new Error("DATABASE_URL environment variable is required")
 }
 
@@ -13,7 +13,8 @@ async function runMigrations() {
 	console.log("Running database migrations...")
 
 	const pool = new Pool({
-		connectionString: env.DATABASE_URL,
+		// biome-ignore lint/style/noProcessEnv: Its ok to use process.env here
+		connectionString: process.env.DATABASE_URL,
 	})
 
 	const db = drizzle(pool)

@@ -1,11 +1,14 @@
 import { reactRouter } from "@react-router/dev/vite"
 import tailwindcss from "@tailwindcss/vite"
+import * as dotenv from "dotenv"
 import { reactRouterDevTools } from "react-router-devtools"
 import { reactRouterHonoServer } from "react-router-hono-server/dev"
 import { defineConfig } from "vite"
 import babel from "vite-plugin-babel"
 import { iconsSpritesheet } from "vite-plugin-icons-spritesheet"
 import tsconfigPaths from "vite-tsconfig-paths"
+
+dotenv.config()
 
 export default defineConfig({
 	plugins: [
